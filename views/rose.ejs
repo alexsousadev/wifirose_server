@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rosa dos Ventos</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .compass {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      margin: 50px auto;
+    }
+    .direction {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    .active {
+      background-color: #001ac5;
+      color: white;
+    }
+    #north { top: 0; left: 75px; }
+    #south { bottom: 0; left: 75px; }
+    #east { right: 0; top: 75px; }
+    #west { left: 0; top: 75px; }
+    #position-display {
+      text-align: center;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="position-display">X: 0, Y: 0</div>
+  <div class="compass">
+    <div id="north" class="direction">N</div>
+    <div id="south" class="direction">S</div>
+    <div id="east" class="direction">L</div>
+    <div id="west" class="direction">O</div>
+  </div>
+
+  <script>
+    const socket = io();
+    const CENTER_X = 2048;
+    const CENTER_Y = 2048;
+    const THRESHOLD = 200; // Aumentado para maior estabilidade
+    const DEAD_ZONE = 100; // Zona morta para evitar flutuações
+
+    function updateDirection(position) {
+        const display = document.getElementById('position-display');
+        display.textContent = `X: ${position.position_x}, Y: ${position.position_y}`;
+
+        // Reset all directions
+        document.querySelectorAll('.direction').forEach(el => el.classList.remove('active'));
+
+        const dx = position.position_x - CENTER_X;
+        const dy = position.position_y - CENTER_Y;
+
+        // Calcula a distância do centro
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Se estiver dentro da zona morta, não ativa nenhuma direção
+        if (distance < DEAD_ZONE) return;
+
+        // Calcula o ângulo (em graus)
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        if (angle < 0) angle += 360;
+
+        // Ativa direções baseado no ângulo
+        if (angle >= 315 || angle < 45) document.getElementById('east').classList.add('active');
+        if (angle >= 45 && angle < 135) document.getElementById('north').classList.add('active');
+        if (angle >= 135 && angle < 225) document.getElementById('west').classList.add('active');
+        if (angle >= 225 && angle < 315) document.getElementById('south').classList.add('active');
+    }
+
+    socket.on('initialPositions', (positions) => {
+        if (positions.length > 0) {
+            updateDirection(positions[positions.length - 1]);
+        }
+    });
+
+    socket.on('newPosition', (position) => {
+        updateDirection(position);
+    });
+  </script>
+</body>
+</html>
