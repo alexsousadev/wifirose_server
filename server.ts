@@ -24,6 +24,11 @@ app.post("/position", (req: Request, res: Response) => {
     res.send({ status: "ok" });
 });
 
+// Rota para deupuração
+app.get('/get-pos', (req, res) => {
+    res.json({ message: 'Retornando posição' });
+});
+
 // Socket.IO connection handler
 io.on('connection', (socket) => {
     console.log('Um cliente conectou');
