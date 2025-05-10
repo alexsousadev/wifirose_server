@@ -19,6 +19,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.post("/position", (req: Request, res: Response) => {
     console.log("Recebido:", req.body);
+    console.log(req.params);
     positions.push(req.body);
     io.emit('newPosition', req.body); // Emite a nova posição para todos os clientes
     res.send({ status: "ok" });
