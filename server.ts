@@ -17,11 +17,15 @@ app.get('/', (req: Request, res: Response) => {
     res.render("rose", { positions: positions });
 });
 
-app.post("/position", (req: Request, res: Response) => {
-    console.log("Recebido:", req.body);
-    console.log(req.params);
-    positions.push(req.body);
-    io.emit('newPosition', req.body); // Emite a nova posição para todos os clientes
+// Mudar de POST para GET e usar req.query ao invés de req.body
+app.get("/position", (req: Request, res: Response) => {
+    const position = {
+        position_x: parseInt(req.query.x as string),
+        position_y: parseInt(req.query.y as string)
+    };
+    console.log("Recebido:", position);
+    positions.push(position);
+    io.emit('newPosition', position);
     res.send({ status: "ok" });
 });
 
