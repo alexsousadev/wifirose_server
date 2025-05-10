@@ -26,6 +26,7 @@ app.post("/position", (req: Request, res: Response) => {
 
 // Rota para deupuração
 app.get('/get-pos', (req, res) => {
+    console.log("teste...");
     res.json({ message: 'Retornando posição' });
 });
 
